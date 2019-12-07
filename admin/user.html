@@ -69,5 +69,46 @@
         </div>
     </div>
 </body>
+<script>
+    $(function(){
+        $.ajax({
+            url :'http://localhost:8080/api/v1/admin/user/detail',
+            type: 'get',
+            success(res){
+                if( res.code === 200 ){
+                    $('#inputEmail1').val(res.data.username)
+                    $('#inputEmail2').val(res.data.nickname)
+                    $('#inputEmail3').val(res.data.email)
+                    $('#inputEmail4').val(res.data.password)
+                    $('.user_pic').attr('src', res.data.userPic)
+                }
+            }
+        })
 
+        $('#exampleInputFile').change(function(){
+            let file = this.files[0];
+            let url = URL.createObjectURL(file);
+            console.log(url);
+            
+            $('.user_pic').attr('src', url)
+        })
+
+        $('#form').on('submit', function(e){
+            e.preventDefault();
+            $.ajax({
+                url: 'http://localhost:8080/api/v1/admin/user/edit',
+                type: 'post',
+                data: new FormData(this),
+                processData: false,
+                contentType: false,
+                success(res){
+                    if( res.code == 200 ){
+                        alert('修改成功')
+                        window.location.href = './index.html'
+                    }
+                }
+            })
+        })
+    })
+</script>
 </html>

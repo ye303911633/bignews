@@ -69,6 +69,13 @@
                 }
             }
         })
+
+
+        $('.logout').on('click', function(){
+            alert('你确定退出嘛！')
+            localStorage.removeItem('token')
+            location.href = './login.html'
+        })
     })
 </script>
 </html>

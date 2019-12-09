@@ -51,6 +51,38 @@
             </table>
         </div>
     </div>
+
+    <!-- 模态框 -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">啦啦啦</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <input type="hidden" id="dataID" name="dataID">
+                        <div class="form-group">
+                            <label for="recipient-name" class="col-form-label" id="Recipient">Recipient:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="col-form-label" id="Message">Message:</label>
+                            <textarea class="form-control" id="message-text"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="btn-sure">确定</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 <!-- {{each $data v}} -->
 <script type="text/template" id="tmpl">
@@ -59,8 +91,8 @@
             <td>{{value.name}}</td>
             <td>{{value.slug}}</td>
             <td class="text-center">
-                <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
-                <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
+                <a href="javascript:void(0)" data-id={{value.id}} data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id={{value.id}} class="btn btn-danger btn-xs">删除</a>
             </td>
         </tr>
     {{/each}}
@@ -69,14 +101,86 @@
 
 <script>
     $(function () {
-        $.get({
-            url: BigNew.category_list,
-            success(res) {
-                console.log(res);
-                let htmlSrc = template('tmpl', res) // 调用模板
-                $('tbody').append(htmlSrc)          // 添加到html样式里
-            }
+        getData();
+        function getData() {
+            $.get({
+                url: BigNew.category_list,
+                success(res) {
+                    let htmlSrc = template('tmpl', res) // 调用模板
+                    $('tbody').html(htmlSrc)          // 添加到html样式里
+                }
+            })
+        }
+
+        // 编辑文章类别
+        $('tbody').on('click', '.btn', function () {
+            let dataId = $(this).attr('data-id');       // 获取点击编辑时的当前id
+            $.get({
+                url: BigNew.category_search,
+                data: {
+                    id: dataId
+                },
+                success(res) {
+                    console.log(res);
+                    $('#exampleModal').modal()
+                    $('#btn-sure').addClass('btn-primary').removeClass('btn-success')
+                    $('#recipient-name').val(res.data[0].name)
+                    $('#message-text').val(res.data[0].slug)
+                    $('#dataID').val(res.data[0].id)
+                }
+            })
         })
+
+        // 点击编辑
+        $("#btn-sure").on('click', function () {
+            let classN = $(this).attr('class');
+            let id = $('#dataID').val();
+            let name = $('#recipient-name').val();
+            let slug = $('#message-text').val();
+            // console.log(classN);
+            if( classN.indexOf('btn-success') != -1){
+                $.post({
+                    url : BigNew.category_add,
+                    data:{
+                        name : name,
+                        slug : slug
+                    },
+                    success(res){
+                        console.log(res);
+                        if( res.code === 201 ){
+                            $('#exampleModal').modal('hide')
+                            getData();
+                        }
+                    }
+                })
+            }else{
+                $.post({
+                    url: BigNew.category_edit,
+                    data: {
+                        id: id,
+                        name: name,
+                        slug: slug
+                    },
+                    success(res) {
+                        // console.log(res);
+                        if (res.code == 200) {
+                            $('#exampleModal').modal('hide')
+                            getData();
+                        }
+                    }
+                })
+            }
+            
+
+        })
+
+        // 点击添加
+        $('#xinzengfenlei').on('click', function () {
+            $('#exampleModal').modal()
+            $('form')[0].reset();
+            $('#btn-sure').addClass('btn-success').removeClass('btn-primary')
+        })
+
     })
 </script>
 

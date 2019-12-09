@@ -31,14 +31,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>奇趣事</td>
                         <td>funny</td>
                         <td class="text-center">
                             <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
                             <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
                 <tfoot>
                     <tr>
@@ -51,5 +51,33 @@
             </table>
         </div>
     </div>
+</body>
+<!-- {{each $data v}} -->
+<script type="text/template" id="tmpl">
+    {{each data value}}
+        <tr>
+            <td>{{value.name}}</td>
+            <td>{{value.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+    {{/each}}
+</script>
+<script src="./libs/http.js"></script>
+
+<script>
+    $(function () {
+        $.get({
+            url: BigNew.category_list,
+            success(res) {
+                console.log(res);
+                let htmlSrc = template('tmpl', res) // 调用模板
+                $('tbody').append(htmlSrc)          // 添加到html样式里
+            }
+        })
+    })
+</script>
 
 </html>

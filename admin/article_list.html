@@ -26,18 +26,18 @@
                 <div class="col-xs-6">
                     <form class="form-inline">
                         <select id="selCategory" name="" class="form-control input-sm">
-                            <option value="">所有分类</option>
+                            <!-- <option value="">所有分类</option>
                             <option>未分类</option>
                             <option>奇趣事</option>
                             <option>会生活</option>
-                            <option>爱旅行</option>
+                            <option>爱旅行</option> -->
                         </select>
                         <select id="selStatus" name="" class="form-control input-sm">
                             <option value="">所有状态</option>
                             <option value="草稿">草稿</option>
                             <option value="已发布">已发布</option>
                         </select>
-                        <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
+                        <button id="btnSearch" class="btn btn-info btn-sm">筛选</button>
                     </form>
                 </div>
                 <div class="col-xs-6">
@@ -80,7 +80,7 @@
 <script type="text/template" id="tmpl">
     <option value="">所有分类</option>
     {{each $data value }}
-        <option>{{value.name}}</option>
+        <option value="{{value.id}}">{{value.name}}</option>
     {{/each}}
 </script>
 
@@ -112,10 +112,12 @@
         })
 
         // 封装 搜索文章
-        function getData(dom, callBack){
+        function getData(dom, callBack) {
             $.get({
                 url: BigNew.article_query,
                 data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
                     page: dom,
                     perpage: ''
                 },
@@ -123,7 +125,7 @@
                     let htmlStr = template('tmpl1', res.data.data)
                     $('tbody').html(htmlStr)
 
-                    if( res.data.data.length != 0 && callBack != null){
+                    if (res.data.data.length != 0 && callBack != null) {
                         $('#pagination-demo').show();
                         callBack(res)
                     }
@@ -132,7 +134,7 @@
         }
 
         //调用 getData() 方法
-        getData(1, function(res){
+        getData(1, function (res) {
             $('#pagination-demo').twbsPagination({
                 totalPages: res.data.totalPage,
                 visiblePages: 7,
@@ -142,7 +144,7 @@
                 }
             })
         });
-        
+
 
         /*
         $.get({
@@ -188,11 +190,19 @@
         })
         */
 
-        
-
-
-
+        // 点击筛选
+        $('#btnSearch').on('click', function (e) {
+            e.preventDefault();                 // 阻止默认点击事件的默认行为
+            getData(1, function (dom) {         // 回调函数，进行ajax请求，调用changeTotalPages方法，并动态传入当前页,并在筛选后，默认跳转至首页
+                $('#pagination-demo').twbsPagination('changeTotalPages', dom.data.totalPage,1)
+            });
         })
+
+
+
+
+
+    })
 </script>
 
 </html>

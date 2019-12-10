@@ -13,6 +13,7 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 引入模板引擎js文件 -->
     <script src="./libs/template-web.js"></script>
+    <script src="./libs/jquery.twbsPagination.js"></script>
 </head>
 
 <body>
@@ -55,7 +56,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
+                    <!-- <tr>
                         <td>王积千造统最头</td>
                         <td>杰克</td>
                         <td>奇趣事</td>
@@ -65,13 +66,133 @@
                             <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
                             <a href="javascript:void(0);" class="btn btn-danger btn-xs delete">删除</a>
                         </td>
-                    </tr>
+                    </tr> -->
                 </tbody>
             </table>
             <div class="row text-center">
+                <ul id="pagination-demo" class="pagination-sm"></ul>
             </div>
         </div>
     </div>
 </body>
+<script src="./libs/http.js"></script>
+
+<script type="text/template" id="tmpl">
+    <option value="">所有分类</option>
+    {{each $data value }}
+        <option>{{value.name}}</option>
+    {{/each}}
+</script>
+
+<script type="text/template" id="tmpl1">
+{{each $data value}}
+    <tr>
+        <td>{{value.title}}</td>
+        <td>{{value.author}}</td>
+        <td>{{value.category}}</td>
+        <td class="text-center">{{value.data}}</td>
+        <td class="text-center">{{value.state}}</td>
+        <td class="text-center">
+            <a href="article_edit.html?id={{value.id}}" class="btn btn-default btn-xs">编辑</a>
+            <a href="javascript:void(0);" data-id="{{value.id}}" class="btn btn-danger btn-xs delete">删除</a>
+        </td>
+    </tr>
+{{/each}}
+</script>
+
+<script>
+    $(function () {
+        // 获取文章类别
+        $.get({
+            url: BigNew.category_list,
+            success(res) {
+                let htmlStr = template('tmpl', res.data)
+                $('#selCategory').html(htmlStr)
+            }
+        })
+
+        // 封装 搜索文章
+        function getData(dom, callBack){
+            $.get({
+                url: BigNew.article_query,
+                data: {
+                    page: dom,
+                    perpage: ''
+                },
+                success(res) {
+                    let htmlStr = template('tmpl1', res.data.data)
+                    $('tbody').html(htmlStr)
+
+                    if( res.data.data.length != 0 && callBack != null){
+                        $('#pagination-demo').show();
+                        callBack(res)
+                    }
+                }
+            })
+        }
+
+        //调用 getData() 方法
+        getData(1, function(res){
+            $('#pagination-demo').twbsPagination({
+                totalPages: res.data.totalPage,
+                visiblePages: 7,
+                onPageClick: function (event, page) {
+                    $('#page-content').text('Page ' + page);
+                    getData(page, null)
+                }
+            })
+        });
+        
+
+        /*
+        $.get({
+            url: BigNew.article_query,
+            data: {
+                page: 1,
+                perpage: ''
+            },
+            success(res) {
+                let htmlStr = template('tmpl1', res.data.data)
+                $('tbody').html(htmlStr)
+                console.log(res);
+
+                if (res.data.data.length != 0) {
+                    $('#pagination-demo').twbsPagination({
+                        totalPages: res.data.totalPage,
+                        visiblePages: 7,
+                        onPageClick: function (event, page) {
+                            $('#page-content').text('Page ' + page);
+                            // getData(page, null)
+                            console.log(page);
+                            $.get({
+                                url: BigNew.article_query,
+                                data: {
+                                    page: page
+                                },
+                                success(res) {
+                                    let htmlStr = template('tmpl1', res.data.data)
+                                    $('tbody').html(htmlStr)
+                                    $('#pagination-demo').twbsPagination({
+                                        totalPages: res.data.totalPage,
+                                        visiblePages: 7,
+                                        onPageClick: function (event, page) {
+                                            $('#page-content').text('Page ' + page);
+                                        }
+                                    })
+                                }
+                            })
+                        }
+                    })
+                }
+            }
+        })
+        */
+
+        
+
+
+
+        })
+</script>
 
 </html>

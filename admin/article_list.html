@@ -111,6 +111,7 @@
             }
         })
 
+        let mypage = 1;
         // 封装 搜索文章
         function getData(dom, callBack) {
             $.get({
@@ -124,17 +125,20 @@
                 success(res) {
                     let htmlStr = template('tmpl1', res.data.data)
                     $('tbody').html(htmlStr)
+                    // console.log(res.data.data.length);
 
                     if (res.data.data.length != 0 && callBack != null) {
                         $('#pagination-demo').show();
                         callBack(res)
+                    }else if( res.data.data.length === 0 ){
+                        $('#pagination-demo').hide();
                     }
                 }
             })
         }
 
         //调用 getData() 方法
-        getData(1, function (res) {
+        getData(mypage, function (res) {
             $('#pagination-demo').twbsPagination({
                 totalPages: res.data.totalPage,
                 visiblePages: 7,
@@ -144,7 +148,6 @@
                 }
             })
         });
-
 
         /*
         $.get({
@@ -194,10 +197,29 @@
         $('#btnSearch').on('click', function (e) {
             e.preventDefault();                 // 阻止默认点击事件的默认行为
             getData(1, function (dom) {         // 回调函数，进行ajax请求，调用changeTotalPages方法，并动态传入当前页,并在筛选后，默认跳转至首页
-                $('#pagination-demo').twbsPagination('changeTotalPages', dom.data.totalPage,1)
+                $('#pagination-demo').twbsPagination('changeTotalPages', dom.data.totalPage, 1)
             });
         })
 
+        // 删除
+        $('tbody').on('click', '.delete', function () {
+            let id = $(this).attr('data-id')
+
+            if (confirm('你确定删除嘛！')) {
+                $.post({
+                    url: BigNew.article_delete,
+                    data: {
+                        id: id
+                    },
+                    success(res) {
+                        console.log(res);
+                        getData(mypage,function(res){
+                            $('#pagination-demo').twbsPagination('changeTotalPages',res.data.totalPage,mypage)
+                        })
+                    }
+                })
+            }
+        })
     })
 </script>
 

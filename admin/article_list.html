@@ -125,13 +125,18 @@
                 success(res) {
                     let htmlStr = template('tmpl1', res.data.data)
                     $('tbody').html(htmlStr)
-                    // console.log(res.data.data.length);
+                    console.log(res.data);
+                    
 
+                    // 判断当前的页面是否有数据，且回调是否为null
                     if (res.data.data.length != 0 && callBack != null) {
-                        $('#pagination-demo').show();
-                        callBack(res)
-                    }else if( res.data.data.length === 0 ){
-                        $('#pagination-demo').hide();
+                        $('#pagination-demo').show();       // 分页器展示
+                        callBack(res)                       // 触发回调
+                    }else if( res.data.totalPage != 0 && res.data.data.length === 0 && res.data.totalPage == mypage - 1 ){  // 判断当前的totalPage是否为0，且数据为0，且把当前的totalPage赋值为页数-1
+                        mypage -= 1;            //条件成立， 就把mypage:页数-1，当前页变成上一页
+                        $('#pagination-demo').twbsPagination('changeTotalPages',res.data.totalPage, mypage) // 重新刷新分页器
+                    }else{
+                        $('#pagination-demo').hide();   // 没数据时 隐藏分页器
                     }
                 }
             })
@@ -143,8 +148,9 @@
                 totalPages: res.data.totalPage,
                 visiblePages: 7,
                 onPageClick: function (event, page) {
-                    $('#page-content').text('Page ' + page);
-                    getData(page, null)
+                    mypage = page;
+                    // $('#page-content').text('Page ' + mypage);
+                    getData(mypage, function(){})
                 }
             })
         });
@@ -213,9 +219,14 @@
                     },
                     success(res) {
                         console.log(res);
-                        getData(mypage,function(res){
-                            $('#pagination-demo').twbsPagination('changeTotalPages',res.data.totalPage,mypage)
-                        })
+                        if( res.code == 204){
+                            getData(mypage,function(res){
+                                console.log(mypage);   
+                                console.log(res);
+                                                        
+                                $('#pagination-demo').twbsPagination('changeTotalPages',res.data.totalPage, mypage)
+                            })
+                        }
                     }
                 })
             }

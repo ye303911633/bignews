@@ -56,7 +56,7 @@
     <div class="main_con clearfix">
         <div class="left_con">
             <ul class="focus_list">
-                <li class="first">
+                <!-- <li class="first">
                     <a href="#"><img src="images/pic01.jpg" alt=""></a>
                     <p>图片说明</p>
                 </li>
@@ -75,7 +75,7 @@
                 <li>
                     <a href="#"><img src="images/pic06.jpg" alt=""></a>
                     <p>图片说明</p>
-                </li>
+                </li> -->
             </ul>
 
             <div class="common_title">
@@ -150,13 +150,13 @@
             <div class="common_wrap">
                 <h3><i class="fa fa-bar-chart"></i> 一周热门排行</h3>
                 <ul class="content_list hotrank_list">
-                    <li><span class="first">1</span><a href="#">神奇的水滴摄影，泡泡中的世界泡泡中的世界</a></li>
+                    <!-- <li><span class="first">1</span><a href="#">神奇的水滴摄影，泡泡中的世界泡泡中的世界</a></li>
                     <li><span class="second">2</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
                     <li><span class="third">3</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
                     <li><span>4</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
                     <li><span>5</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
                     <li><span>6</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
-                    <li><span>7</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li>
+                    <li><span>7</span><a href="#">神奇的水滴摄影，泡泡中的世界</a></li> -->
                 </ul>
             </div>
             <div class="common_wrap">
@@ -223,10 +223,66 @@
         <p>电话：0755-****888 粤ICP备*******8号</p>
     </div>
 
-    <!-- 导入模板引擎js文件 -->
-    <script src="./js/template-web.js"></script>
-    <!-- 引入jq文件 -->
-    <script src="./js/jquery-1.12.4.min.js"></script>
 </body>
+<!-- 导入模板引擎js文件 -->
+<script src="./js/template-web.js"></script>
+<!-- 引入jq文件 -->
+<script src="./js/jquery-1.12.4.min.js"></script>
+<script src="./UserUrl.js"></script>
+
+<script type="text/template" id='tmpl'>
+    {{each data}}
+        {{if $index == 0}}
+        <li class="first">
+        {{else}}
+        <li>
+        {{/if}}
+            <a href="#"><img src="{{$value.cover}}" alt=""></a>
+            <p>{{$value.title}}</p>
+        </li>
+    {{/each}}
+</script>
+
+<script type="text/template" id="tmpl1">
+    {{each data}}
+    <li>
+    {{if $index==0}}
+    <span class="first">{{$index+1}}</span>
+    {{else if $index==1}}
+    <span class="second">{{$index+1}}</span>
+    {{else if $index==2}}
+    <span class="third">{{$index+1}}</span>
+    {{else}}
+    <span>{{$index+1}}</span>
+    {{/if}}
+    <a href="#">{{$value.title}}</a>
+    </li>
+    {{/each}}
+</script>
+
+<script>
+    $(function () {
+        // 热点图
+        $.get({
+            url : BigNew.user_hotpic,
+            success(res){
+                console.log(res);
+                let htmlStr = template('tmpl', res)
+                $('.focus_list').html(htmlStr)
+            }
+        })
+
+        // 文章热门排行
+        $.get({
+            url : BigNew.user_rank,
+            success(res){
+                console.log(res);
+                let htmlStr = template('tmpl1', res)
+                $('.hotrank_list').html(htmlStr)
+                
+            }
+        })
+    })
+</script>
 
 </html>
